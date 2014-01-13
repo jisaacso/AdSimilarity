@@ -24,16 +24,19 @@ class MyCorpus:
             for f in features:
                 myStr+=jsonDoc[f]
 
-            line = re.sub('\<[^>]*\>',' ',myStr).lower()
-            line = re.sub('[^a-z|^0-9|^ ]','',line).lower()
+            line = re.sub('\<[^>]*\>',' ',myStr).lower() #get rid of html tags
+            line = re.sub('[^a-z|^0-9|^ ]','',line).lower() #get rid of non alphanumeric ascii
             myList.append(line)
 
+        #save cleaned text to self.fname
         fout = open(self.fname,'w')
         for v in myList:
             fout.write(v+'\n')
         fout.close()
 
+    #build a gensim dictionary of every advertisement
     def buildDictionary(self):
+        #dictionary takes an array of arrays of tokens
         self.dictionary = corpora.Dictionary(line.split() for line in open(self.fname,'r'))
 
         stoplist = set('for a of the and to in by an'.split())
@@ -43,7 +46,7 @@ class MyCorpus:
                    if docfreq == 1]
         self.dictionary.filter_tokens(stopIds+onceIds)
         self.dictionary.compactify()
-
+    #iterator yields bag of words counts
     def __iter__(self):
         for line in open(self.fname,'r'):
             yield self.dictionary.doc2bow(line.split())
@@ -111,10 +114,13 @@ if __name__=='__main__':
     for idx,i in enumerate(ivec):
         ititle= data[int(i)]['long_title']
         jtitle=data[int(jvec[idx])]['long_title']
+        print i
+        print jvec[idx]
         print ititle
         print jtitle
         print '======='
         G.add_edge(ititle,jtitle)
+    print cosineSimilarity(mtx[:,4],mtx[:,5])
     networkx.draw(G)
     show()
 
